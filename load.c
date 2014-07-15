@@ -647,6 +647,7 @@ rb_load_internal(VALUE fname, int wrap)
 void
 rb_load(VALUE fname, int wrap)
 {
+    fprintf(stderr, "%s fname=%s\n", __func__, StringValuePtr(fname));
     VALUE tmp = rb_find_file(FilePathValue(fname));
     if (!tmp) load_failed(fname);
     rb_load_internal(tmp, wrap);
@@ -814,6 +815,7 @@ load_unlock(const char *ftptr, int done)
 VALUE
 rb_f_require(VALUE obj, VALUE fname)
 {
+    fprintf(stderr, "%s fname=%s\n", __func__, StringValuePtr(fname));
     return rb_require_safe(fname, rb_safe_level());
 }
 
@@ -828,6 +830,7 @@ rb_f_require(VALUE obj, VALUE fname)
 VALUE
 rb_f_require_relative(VALUE obj, VALUE fname)
 {
+    fprintf(stderr, "%s fname=%s\n", __func__, StringValuePtr(fname));
     VALUE base = rb_current_realfilepath();
     if (NIL_P(base)) {
 	rb_loaderror("cannot infer basepath");

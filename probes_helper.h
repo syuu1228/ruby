@@ -8,7 +8,7 @@ VALUE rb_class_path_no_cache(VALUE _klass);
 
 #define RUBY_DTRACE_HOOK(name, th, klazz, id) \
 do { \
-    if (RUBY_DTRACE_##name##_ENABLED()) { \
+    { \
 	VALUE _klass = (klazz); \
 	VALUE _id = (id); \
 	const char * classname; \
@@ -39,12 +39,16 @@ do { \
 		    methodname = rb_id2name(_id); \
 		    filename   = rb_sourcefile(); \
 		    if (classname && methodname && filename) { \
-		        RUBY_DTRACE_##name( \
-				classname, \
-				methodname, \
-				filename, \
-				rb_sourceline()); \
+			if (RUBY_DTRACE_##name##_ENABLED()) { \
+			        RUBY_DTRACE_##name( \
+					classname, \
+					methodname, \
+					filename, \
+					rb_sourceline()); \
+			} \
 		    } \
+		    fprintf(stderr, "%s %s:%d:%s.%s\n", \
+                        __func__, filename, rb_sourceline(), classname, methodname); \
 		    break; \
 		} \
 	    } \

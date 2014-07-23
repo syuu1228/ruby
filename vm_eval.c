@@ -50,6 +50,52 @@ vm_call0(rb_thread_t* th, VALUE recv, ID id, int argc, const VALUE *argv,
     return vm_call0_body(th, ci, argv);
 }
 
+void get_cmethod_info(char* information[2], rb_thread_t* th, VALUE klazz, ID id){
+  const char * classname; 
+  const char * methodname; 
+  const char * filename; 
+
+  do { 
+    { 
+      VALUE _klass = (klazz); 
+      VALUE _id = (id); 
+      if (!_klass) { 
+        rb_thread_method_id_and_class((th), &_id, &_klass); 
+      } 
+      if (_klass) { 
+        if (RB_TYPE_P(_klass, T_ICLASS)) { 
+          _klass = RBASIC(_klass)->klass; 
+        } 
+        else if (FL_TEST(_klass, FL_SINGLETON)) { 
+          _klass = rb_iv_get(_klass, "__attached__"); 
+        } 
+        switch (TYPE(_klass)) { 
+          case T_CLASS: 
+          case T_ICLASS: 
+          case T_MODULE: 
+            { 
+              VALUE _name = rb_class_path_no_cache(_klass); 
+              if (!NIL_P(_name)) { 
+                classname = StringValuePtr(_name); 
+              } 
+              else {			 
+                classname = "<unknown>"; 
+              } 
+              methodname = rb_id2name(_id); 
+              filename   = rb_sourcefile(); 
+
+              break; 
+            } 
+        } 
+      } 
+    } 
+  } while (0);
+
+  information[0] = classname;
+  information[1] = methodname;
+}
+
+
 #if OPT_CALL_CFUNC_WITHOUT_FRAME
 static VALUE
 vm_call0_cfunc(rb_thread_t* th, rb_call_info_t *ci, const VALUE *argv)
@@ -104,7 +150,11 @@ vm_call0_cfunc_with_frame(rb_thread_t* th, rb_call_info_t *ci, const VALUE *argv
     ID mid = ci->mid;
     rb_block_t *blockptr = ci->blockptr;
 
+    char *cmethod_information[2];
+
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, defined_class, mid);
+    get_cmethod_info(&cmethod_information, th, defined_class, mid);
+    printf("classname : %s, methodname :  %s\n", cmethod_information[0], cmethod_information[1]);
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, mid, defined_class, Qnil);
     {
 	rb_control_frame_t *reg_cfp = th->cfp;

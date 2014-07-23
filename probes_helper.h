@@ -47,8 +47,6 @@ do { \
 					rb_sourceline()); \
 			} \
 		    } \
-		    fprintf(stderr, "%s %s:%d:%s.%s\n", \
-                        __func__, filename, rb_sourceline(), classname, methodname); \
 		    break; \
 		} \
 	    } \

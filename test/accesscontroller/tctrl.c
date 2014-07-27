@@ -1,5 +1,5 @@
 #include <stdio.h>
 
-void black(void){
+void blackFunction(void){
   printf("This function was registered in blackList\n");
 }

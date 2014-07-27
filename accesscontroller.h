@@ -22,45 +22,56 @@ typedef struct ListNode{
 typedef struct ListStruct{
   ListNode *firstnode,
            *lastnode,
-           *newnode,
-           *thisnode,
            *removenode;
 } ListStruct;
 
 ListStruct blackList;
 
 void insertNode(ListStruct *list, ListNode *newdata){
-  list->newnode = (ListNode*)malloc(sizeof(ListNode));
-  list->newnode->data = newdata->data;
-  list->newnode->next = NULL;
+  ListNode *newnode = (ListNode*)malloc(sizeof(ListNode));
+  newnode->data = newdata->data;
+  newnode->next = NULL;
 
   if(list->lastnode != NULL){
     list->lastnode->next = newdata;
-    list->newnode->prev  = list->lastnode;
-    list->lastnode       = list->newnode;
+    newnode->prev  = list->lastnode;
+    list->lastnode = newnode;
   } else {
-    list->firstnode = list->lastnode = list->newnode;
-    list->newnode->prev = NULL;
+    list->firstnode = list->lastnode = newnode;
+    newnode->prev = NULL;
   }
 }
 
 void removeNode(ListStruct *list, ListNode *node){
-  for(list->thisnode = list->firstnode; list->thisnode != NULL;
-      list->thisnode = list->thisnode->next){
-    if(list->thisnode->data.classname == node->data.classname &&
-        list->thisnode->data.methodname == node->data.methodname){
-      if(list->thisnode->prev != NULL)
-        list->thisnode->prev->next = list->thisnode->next;
+  ListNode *thisnode;
+  for(thisnode = list->firstnode; thisnode != NULL;
+      thisnode = thisnode->next){
+
+    if(thisnode->data.classname == node->data.classname &&
+        thisnode->data.methodname == node->data.methodname){
+      if(thisnode->prev != NULL)
+        thisnode->prev->next = thisnode->next;
       else
-        list->firstnode = list->thisnode->next;
+        list->firstnode = thisnode->next;
 
-      if(list->thisnode->next != NULL)
-        list->thisnode->next->prev = list->thisnode->prev;
+      if(thisnode->next != NULL)
+        thisnode->next->prev = thisnode->prev;
 
-      free(list->thisnode);
+      free(thisnode);
       break;
     }
   }
+}
+
+void showListElement(ListStruct *list){
+  ListNode *thisnode;
+  fprintf(stderr, "begin\n");
+  for(thisnode = list->firstnode; thisnode != NULL;
+      thisnode = thisnode->next){
+        fprintf(stderr, "ONE OF THE ELEMENT DATA IS\n\tclass : %s method : %s\n",
+        thisnode->data.classname, thisnode->data.methodname);
+   }
+  fprintf(stderr, "end\n");
 }
 
 void get_method_info(METHOD_INFORMATION* method_information, rb_thread_t* th, VALUE klazz, ID id) {
@@ -109,7 +120,8 @@ void get_method_info(METHOD_INFORMATION* method_information, rb_thread_t* th, VA
 }
 
 void show_method_info(METHOD_INFORMATION *method_information){
-  fprintf(stderr, "class : %s, method : %s\n", method_information->classname, method_information->methodname);
+  fprintf(stderr, "class : %s, method : %s\n",
+      method_information->classname, method_information->methodname);
 }
 
 void add_black_list_element(ListStruct *list, const char * classname, const char * methodname){
@@ -129,6 +141,7 @@ void remove_black_list_element(ListStruct *list, const char * classname, const c
 }
 
 int search_black_list_element(ListStruct *list, METHOD_INFORMATION *target){
+  ListNode *thisnode;
   int return_status = 0;
 #ifdef NOW_DEBUG
   fprintf(stderr, "===============================\n");
@@ -136,53 +149,59 @@ int search_black_list_element(ListStruct *list, METHOD_INFORMATION *target){
   fprintf(stderr, "TARGET DATA IS\n\tclass : %s method : %s\n",
           target->classname, target->methodname);
 #endif
-
-  for(list->thisnode = list->firstnode; list->thisnode != NULL;
-      list->thisnode = list->thisnode->next){
+  
+  for(thisnode = list->firstnode; thisnode != NULL;
+      thisnode = thisnode->next){
     
 #ifdef NOW_DEBUG
     fprintf(stderr, "THIS   DATA IS\n\tclass : %s method : %s\n",
-        list->thisnode->data.classname, list->thisnode->data.methodname);
+        thisnode->data.classname, thisnode->data.methodname);
 #endif
 
-    if(strcmp(list->thisnode->data.classname, target->classname) == 0 &&
-        strcmp(list->thisnode->data.methodname, target->methodname) == 0 ){
+    if(strcmp(thisnode->data.classname, target->classname) == 0 &&
+        strcmp(thisnode->data.methodname, target->methodname) == 0 ){
       return_status = 1;
       break;
     }
     
-    if(list->thisnode->prev != NULL)
-      list->thisnode->prev->next = list->thisnode->next;
+    if(thisnode->prev != NULL)
+      thisnode->prev->next = thisnode->next;
     else
-      list->firstnode = list->thisnode->next;
+      list->firstnode = thisnode->next;
     
-    if(list->thisnode->next != NULL)
-      list->thisnode->next->prev = list->thisnode->prev;
-
+    if(thisnode->next != NULL)
+      thisnode->next->prev = thisnode->prev;
   }
 
 #ifdef NOW_DEBUG
   fprintf(stderr, "===============================\n");
 #endif
 
+
   return return_status;
 }
 
 void distinction_method(ListStruct *list, METHOD_INFORMATION *method_information){
   int found = search_black_list_element(list, method_information);
+  showListElement(list);
+  if(strcmp(method_information->classname, "BlackList") == 0){
+    printf("--------BLACKLIST-------\n");
+    exit(EXIT_FAILURE);
+  }
+
   if(found == 1){
 #ifdef NOW_DEBUG
     fprintf(stderr, "Found!\n");
 #endif
-    rb_raise(rb_eRuntimeError, "Error this method is registered to blackList");
+/*  rb_raise(rb_eRuntimeError, "Error this method is registered to blackList");*/
   } else {
 #ifdef NOW_DEBUG
     fprintf(stderr, "Not Found\n");
-    /*add_black_list_element(list, method_information->classname, method_information->methodname);*/
+    add_black_list_element(list, method_information->classname, method_information->methodname);
 #endif
   }
 }
 
 void preSetBlackList(ListStruct *list){
-  add_black_list_element(list, "blackList", "blackFunction");
+  add_black_list_element(list, "BlackList", "blackFunction");
 }

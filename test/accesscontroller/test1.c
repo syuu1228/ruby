@@ -1,16 +1,16 @@
 #include "ruby.h"
 
-void black(void);
+void blackFunction(void);
 
-VALUE wrap_black(self)
+VALUE wrap_black_function(self)
   VALUE self;
 {
-  black();
+  blackFunction();
   return Qnil;
 }
 
 void Init_tctrl(){
   VALUE class;
   class = rb_define_class("BlackList", rb_cObject);
-  rb_define_method(class, "black", wrap_black, 0);
+  rb_define_method(class, "black", wrap_black_function, 0);
 }

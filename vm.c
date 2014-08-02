@@ -22,6 +22,7 @@
 #include "probes_helper.h"
 
 #include "accesscontroller.h"
+#include "accesscontroller.c"
 
 static inline VALUE *
 VM_EP_LEP(VALUE *ep)

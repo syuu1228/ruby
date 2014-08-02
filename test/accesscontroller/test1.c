@@ -12,5 +12,5 @@ VALUE wrap_black_function(self)
 void Init_tctrl(){
   VALUE class;
   class = rb_define_class("BlackList", rb_cObject);
-  rb_define_method(class, "black", wrap_black_function, 0);
+  rb_define_method(class, "blackFunction", wrap_black_function, 0);
 }

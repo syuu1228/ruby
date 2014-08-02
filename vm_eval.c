@@ -104,14 +104,20 @@ vm_call0_cfunc_with_frame(rb_thread_t* th, rb_call_info_t *ci, const VALUE *argv
     ID mid = ci->mid;
     rb_block_t *blockptr = ci->blockptr;
 
-    METHOD_INFORMATION cmethod_information;
+    struct method_information cmi;
 
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, defined_class, mid);
 
-    preSetBlackList(&blackList);
-    get_method_info(&cmethod_information, th, defined_class, mid);
-    show_method_info(&cmethod_information);
-    distinction_method(&blackList, &cmethod_information);
+    get_method_info(&cmi, th, defined_class, mid);
+    
+    show_method_info(&cmi);
+    
+    init_mi_array();
+
+    pre_set_rule();
+    dump_mi_array();
+
+    accesscontroller(&cmi);
 
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, mid, defined_class, Qnil);
     {

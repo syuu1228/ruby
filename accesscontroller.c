@@ -11,7 +11,6 @@ Author : alphaKAI
 
 #define MI_MAX_ARRAY_SIZE 100
 static struct method_information *mi_array[MI_MAX_ARRAY_SIZE];
-int used = 0;
 
 /* Prototype defines */
 static bool mi_is_euqal(struct method_information *, struct method_information *);
@@ -219,11 +218,7 @@ void dump_mi_array(){
 #endif
 }
 
-int flag = 0;
 void pre_set_rule(){
-  if(flag != 0)
-    return;
-  flag++;
   struct method_information *tmp_mi;
   tmp_mi = (struct method_information*)malloc(sizeof(struct method_information));
 

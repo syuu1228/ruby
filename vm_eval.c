@@ -108,16 +108,13 @@ vm_call0_cfunc_with_frame(rb_thread_t* th, rb_call_info_t *ci, const VALUE *argv
 
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, defined_class, mid);
 
-    get_method_info(&cmi, th, defined_class, mid);
-    
-    show_method_info(&cmi);
-    
-    init_mi_array();
-
+    get_method_info(&cmi, th, defined_class, mid);   
     pre_set_rule();
+#ifdef ACCESSCONTROLLER_DEBUG
     dump_mi_array();
+#endif
 
-    accesscontroller(&cmi);
+    access_granted(&cmi);
 
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, mid, defined_class, Qnil);
     {

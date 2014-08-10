@@ -3,199 +3,232 @@
 
 Author : alphaKAI
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
-#define true 1
-#define false 0
+#define MI_MAX_ARRAY_SIZE 100
+static struct method_information *mi_array[MI_MAX_ARRAY_SIZE];
+int used = 0;
 
-int init_flag = 0;
+/* Prototype defines */
+static bool mi_is_euqal(struct method_information *, struct method_information *);
+static bool  mi_is_null(struct method_information *);
+static void mi_clear(struct method_information *);
+static struct method_information *search_mi_element(struct method_information *);
+static void insert_mi_element(struct method_information *);
+static void remove_mi_element(struct method_information *);
 
-void init_mi_array(){
+int mi_array_idx = 0; 
+
+bool mi_is_equal(struct method_information *a, struct method_information *b){
+
+  if(strcmp(a->classname, b->classname) == 0 &&
+      strcmp(a->methodname, b->methodname) == 0){
+    return true;
+  }
+
+  return false;
+}
+
+bool mi_is_null(struct method_information *mi){
+
+  if(mi->classname == NULL
+      && mi->methodname == NULL) {
+    return true;
+  }
+
+  return false;
+}
+
+void mi_clear(struct method_information *mi) {
+  mi->classname = NULL;
+  mi->methodname = NULL;
+}
+
+struct method_information * search_mi_element(struct method_information *mi) {
   int i;
-  if(init_flag == 0) {
-    for(i = 0; i < MAX_ARRAY_SIZE; i++) {
-      data_clear(&mi_array[i]);
+
+  for(i = 0; i < MI_MAX_ARRAY_SIZE; i++){
+    if(mi_array[i] != NULL){
+#ifdef ACCESSCONTROLLER_DEBUG
+      fprintf(stderr, "[COMPARE] class  %s - %s\n", mi_array[i]->classname, mi->classname);
+      fprintf(stderr, "[COMPARE] method %s - %s\n", mi_array[i]->methodname, mi->methodname);
+#endif
+      if(mi_is_equal(mi_array[i], mi)){
+#ifdef ACCESSCONTROLLER_DEBUG
+        fprintf(stderr, "[COMPARE] match!!!!!!!!!!!\n");
+#endif
+        return mi_array[i];
+      }
+#ifdef ACCESSCONTROLLER_DEBUG
+      fprintf(stderr, "[COMPARE] not match\n");
+#endif
     }
-
-    init_flag = 1;
-  }
-}
-
-void set_data(struct method_information * to, struct method_information * from){
-  *to = *from;
-}
-
-int data_is_euqal(struct method_information * a, struct method_information * b){
-  int t = false;
-
-  if(a->classname == b->classname &&
-      a->methodname == b->methodname) {
-    t = true;
   }
 
-  return t;
+  return NULL;
 }
 
-int data_is_null(struct method_information * data){
-  int t = false;
-
-  if(data->classname == NULL 
-      && data->methodname == NULL) {
-    t = true;
-  }
-
-  return t;
-}
-
-void data_clear(struct method_information * data) {
-  data->classname = NULL;
-  data->methodname = NULL;
-}
-
-int mi_array_has_empty() {
+void insert_mi_element(struct method_information *mi) {
   int i;
-  int flag = false;
+  bool flag = false;
 
-  for(i = 0; i < MAX_ARRAY_SIZE; i++){
-    if(data_is_null(&mi_array[i]) == true){
+#ifdef ACCESSCONTROLLER_DEBUG
+  fprintf(stderr, "[insert_mi_element] first step then\n");
+#endif
+  if(search_mi_element(mi) != NULL || mi_is_null(mi)){
+    fprintf(stderr, "Alrady exists\n");
+    return;
+  }
+#ifdef ACCESSCONTROLLER_DEBUG
+  fprintf(stderr, "[insert_mi_element] first step end\n");
+  
+  fprintf(stderr, "[insert_mi_element] seound step then\n");
+#endif
+  
+  for(i = mi_array_idx; i < MI_MAX_ARRAY_SIZE; i++){
+    if(mi_array[i] == NULL){
       flag = true;
       break;
     }
   }
 
-  return flag;
-}
-
-int search_mi_element(struct method_information * mi) {
-  int i;
-  int r = false;
- 
-  for(i = 0; i < MAX_ARRAY_SIZE; i++){
-    if(data_is_euqal(&mi_array[i], mi) == true){
-      r = true;
-      break;
-    }
-  }
-
-  return r;
-}
-
-void insert_mi_element(struct method_information * mi) {
-  int i;
-
-  if(search_mi_element(mi) == true){
-    /*fprintf(stderr, "Alrady exists\n"); */
-    return;
-  }
-  
-  if(mi_array_has_empty() == false) {
-    fprintf(stderr, "[Error] : Can not insert rule into array; array size is 100(MAX)\n");
-    rb_raise(rb_eRuntimeError, "Can't insert more rule; array is already full");
+  if(flag == false) {
+    fprintf(stderr, "[Error] : Can not insert rule into array; array size is 100(MI_MAX)\n");
+    rb_fatal("Can't insert more rule; array is already full");
     return;
   }
 
-  for(i = 0; i < MAX_ARRAY_SIZE; i++){
-    if(data_is_null(&mi_array[i]) == true){
-      set_data(&mi_array[i], mi);
+#ifdef ACCESSCONTROLLER_DEBUG
+  fprintf(stderr, "[insert_mi_element] thuard step end\n");
+
+  fprintf(stderr, "[insert_mi_element] for loop then\n");
+#endif
+  for(; mi_array_idx < MI_MAX_ARRAY_SIZE; mi_array_idx++){
+    if(mi_array[mi_array_idx] == NULL){
+#ifdef ACCESSCONTROLLER_DEBUG
+      fprintf(stderr, "Will Allocate\n");
+#endif
+      mi_array[mi_array_idx] = (struct method_information*)malloc(sizeof(struct method_information*));
+#ifdef ACCESSCONTROLLER_DEBUG
+      fprintf(stderr, "Complate Allocate\n");
+
+      fprintf(stderr, "Will Pull\n");
+#endif
+      mi_array[mi_array_idx] = mi;
+#ifdef ACCESSCONTROLLER_DEBUG
+      fprintf(stderr, "Ok\n");
+#endif
       break;
     }
   }
+
+#ifdef ACCESSCONTROLLER_DEBUG
+  fprintf(stderr, "[insert_mi_element] for loop end\n");
+#endif
 }
 
-void remove_mi_element(struct method_information * mi) {
+void remove_mi_element(struct method_information *mi) {
   int i;
 
-  for(i = 0; i < MAX_ARRAY_SIZE; i++){
-    if(data_is_euqal(&mi_array[i], mi) == true){
-      data_clear(&mi_array[i]);
-      break;
-    }
-  }
-
-  if(i == MAX_ARRAY_SIZE - 1){
+  struct method_information *tmp;
+  tmp = search_mi_element(mi);
+  if(tmp != NULL){
+    free(tmp);
+    mi_array_idx--;
+  } else if(tmp == NULL){
     fprintf(stderr, "Not Found\n");
   }
 }
 
-void get_method_info(struct method_information * mi, rb_thread_t * th, VALUE klazz, ID id) {
-  const char * classname; 
-  const char * methodname; 
-  const char * filename;
+void get_method_info(struct method_information *mi, rb_thread_t *th, VALUE klazz, ID id) {
+  const char *classname;
+  const char *methodname;
+  const char *filename;
 
-  do { 
-    { 
-      VALUE _klass = (klazz); 
-      VALUE _id = (id); 
-      if (!_klass) { 
-        rb_thread_method_id_and_class((th), &_id, &_klass); 
-      } 
-      if (_klass) { 
-        if (RB_TYPE_P(_klass, T_ICLASS)) { 
-          _klass = RBASIC(_klass)->klass; 
-        } 
-        else if (FL_TEST(_klass, FL_SINGLETON)) { 
-          _klass = rb_iv_get(_klass, "__attached__"); 
-        } 
-        switch (TYPE(_klass)) { 
-          case T_CLASS: 
-          case T_ICLASS: 
-          case T_MODULE: 
-            { 
-              VALUE _name = rb_class_path_no_cache(_klass); 
-              if (!NIL_P(_name)) { 
-                classname = StringValuePtr(_name); 
-              } 
-              else {                     
-                classname = "<unknown>"; 
-              } 
-              methodname = rb_id2name(_id); 
-              filename   = rb_sourcefile(); 
+  if (!klazz) { 
+    rb_thread_method_id_and_class((th), &id, &klazz);
+  } 
+  if (klazz) { 
+    if (RB_TYPE_P(klazz, T_ICLASS)) { 
+      klazz = RBASIC(klazz)->klass;
+    } 
+    else if (FL_TEST(klazz, FL_SINGLETON)) { 
+      klazz = rb_iv_get(klazz, "__attached__");
+    } 
+    switch (TYPE(klazz)) { 
+      case T_CLASS: 
+      case T_ICLASS: 
+      case T_MODULE: 
+        { 
+          VALUE name = rb_class_path_no_cache(klazz);
+          if (!NIL_P(name)) { 
+            classname = StringValuePtr(name);
+          } 
+          else {                     
+            classname = "<unknown>";
+          } 
+          methodname = rb_id2name(id);
+          filename   = rb_sourcefile();
 
-              break; 
-            } 
+          break; 
         } 
-      } 
-    }
-  } while (0);
+    } 
+  } 
 
   mi->classname = classname;
   mi->methodname = methodname;
 }
 
-void show_method_info(struct method_information * mi) {
+void show_method_info(struct method_information *mi) {
     fprintf(stderr, "class : %s, method : %s\n",
         mi->classname, mi->methodname);
 }
 
-void accesscontroller(struct method_information * mi) {
-  
-  if(search_mi_element(mi) == true){
-    fprintf(stderr, "This method is not available");
+void access_granted(struct method_information *mi) {
+#ifdef ACCESSCONTROLLER_DEBUG
+  fprintf(stderr, "[ACCESS CONTROLLER] THEN\n");
+#endif
+  if(search_mi_element(mi) != NULL){
+    fprintf(stderr, "ERROR\n");
+    fprintf(stderr, "This method is not available\n");
     rb_raise(rb_eRuntimeError, "This method is not available");
+    exit(EXIT_FAILURE);
   }
+#ifdef ACCESSCONTROLLER_DEBUG
+  fprintf(stderr, "[ACCESS CONTROLLER] END\n");
+#endif
 }
 
 void dump_mi_array(){
   int i;
 
+#ifdef ACCESSCONTROLLER_DEBUG
   fprintf(stderr, "[DEBUG][ARRAY DUMP]\n");
-  for(i = 0; i < MAX_ARRAY_SIZE; i++){
-    if(data_is_null(&mi_array[i]) == 0){
+  for(i = 0; i < MI_MAX_ARRAY_SIZE; i++){
+    if(mi_array[i] != NULL){
       fprintf(stderr, "mi_array[%d]:\n", i);
-      fprintf(stderr, "\tclassname  : %s\n", mi_array[i].classname);
-      fprintf(stderr, "\tmethodname : %s\n", mi_array[i].methodname);
+      show_method_info(mi_array[i]);
     }
   }
   
   fprintf(stderr, "======================\n");
+#endif
 }
 
+int flag = 0;
 void pre_set_rule(){
-  struct method_information tmp_mi;
-  tmp_mi.classname = "BlackList";
-  tmp_mi.methodname = "blackFunction";
+  if(flag != 0)
+    return;
+  flag++;
+  struct method_information *tmp_mi;
+  tmp_mi = (struct method_information*)malloc(sizeof(struct method_information));
 
-  insert_mi_element(&tmp_mi);
+  tmp_mi->classname = "BlackList";
+  tmp_mi->methodname = "blackFunction";
+
+  insert_mi_element(tmp_mi);
 }

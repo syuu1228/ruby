@@ -4,7 +4,7 @@
   Author : alphaKAI
 */
 
-#define ACCESSCONTROLLER_DEBUG
+#define METHOD_DEBUG
 
 struct method_information {
   const char *classname;

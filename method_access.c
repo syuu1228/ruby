@@ -26,7 +26,7 @@ Author : alphaKAI
 
 #include "method_access.h"
 
-#ifdef ACCESSCONTROLLER_DEBUG
+#ifdef METHOD_DEBUG
 #define DEBUG0(msg) fprintf(stderr, msg)
 #define DEBUG1(msg, arg1) fprintf(stderr, msg, arg1)
 #define DEBUG2(msg, arg1, arg2) fprintf(stderr, msg, arg1, arg2)
@@ -153,7 +153,7 @@ method_granted(struct method_information *mi)
 
   matched = search_mi_element(mi);
   DEBUG0("[COMPARE]");
-#ifdef ACCESSCONTROLLER_DEBUG
+#ifdef METHOD_DEBUG
   show_method_info(mi);
 #endif
 
@@ -172,7 +172,7 @@ dump_mi_array()
 {
   int i;
 
-#ifdef ACCESSCONTROLLER_DEBUG
+#ifdef METHOD_DEBUG
   fprintf(stderr, "[DEBUG][ARRAY DUMP]\n");
   for (i = 0; i < ARRAY_SIZE; i++) {
     if (mi_array[i] != NULL) {

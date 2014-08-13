@@ -845,7 +845,7 @@ rb_f_require_relative(VALUE obj, VALUE fname)
       rb_fatal("Can't require");
     
     if (NIL_P(base)) {
-      rb_loaderror("cannot infer basepath");
+	rb_loaderror("cannot infer basepath");
     }
     base = rb_file_dirname(base);
     return rb_require_safe(rb_file_absolute_path(fname, base), rb_safe_level());

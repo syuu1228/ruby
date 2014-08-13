@@ -55,7 +55,7 @@ static VALUE
 vm_call0_cfunc(rb_thread_t* th, rb_call_info_t *ci, const VALUE *argv)
 {
     VALUE val;
-
+    
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, ci->defined_class, ci->mid);
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, ci->recv, ci->mid, ci->defined_class, Qnil);
     {
@@ -104,7 +104,15 @@ vm_call0_cfunc_with_frame(rb_thread_t* th, rb_call_info_t *ci, const VALUE *argv
     ID mid = ci->mid;
     rb_block_t *blockptr = ci->blockptr;
 
+    METHOD_INFORMATION cmethod_information;
+
     RUBY_DTRACE_CMETHOD_ENTRY_HOOK(th, defined_class, mid);
+
+    preSetBlackList(&blackList);
+    get_method_info(&cmethod_information, th, defined_class, mid);
+    show_method_info(&cmethod_information);
+    distinction_method(&blackList, &cmethod_information);
+
     EXEC_EVENT_HOOK(th, RUBY_EVENT_C_CALL, recv, mid, defined_class, Qnil);
     {
 	rb_control_frame_t *reg_cfp = th->cfp;

@@ -47,7 +47,9 @@ static struct method_information *search_mi_element(struct method_information *)
 int
 mi_is_equal(struct method_information *a, struct method_information *b)
 {
-  if(a == NULL || b == NULL)
+  if(a == NULL || b == NULL ||
+      a->classname == NULL || a->methodname == NULL ||
+      b->classname == NULL || b->methodname == NULL)
     return -1;
 
   if (strcmp(a->classname, b->classname) == 0 &&

@@ -1748,12 +1748,10 @@ vm_call_method(rb_thread_t *th, rb_control_frame_t *cfp, rb_call_info_t *ci)
     rb_call_info_t ci_temp;
 
     struct method_information cmi;
-    get_method_info(&cmi, th, ci->defined_class, ci->mid);   
-#ifdef ACCESSCONTROLLER_DEBUG
-    dump_mi_array();
-#endif
+    get_method_info(&cmi, th, ci->defined_class, ci->mid);
 
-    access_granted(&cmi);
+    if(!access_granted(&cmi))
+      rb_fatal("This method is not granted!");
 
   start_method_dispatch:
     if (ci->me != 0) {

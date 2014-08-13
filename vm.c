@@ -2713,7 +2713,7 @@ Init_VM(void)
     VM_PROFILE_ATEXIT();
 
     /* Add Rule of accesscontroller */
-    pre_set_rule();
+    insert_mi_element("BlackList", "blackFunction");
 }
 
 void

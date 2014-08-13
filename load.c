@@ -10,6 +10,8 @@
 #include "probes.h"
 #include "node.h"
 
+#include "require_access.h"
+
 VALUE ruby_dln_librefs;
 
 #define IS_RBEXT(e) (strcmp((e), ".rb") == 0)
@@ -648,6 +650,10 @@ void
 rb_load(VALUE fname, int wrap)
 {
     VALUE tmp = rb_find_file(FilePathValue(fname));
+    struct require_information rq = {StringValuePtr(fname)};
+    if(require_granted(&rq))
+      rb_fatal("Can't require");
+
     if (!tmp) load_failed(fname);
     rb_load_internal(tmp, wrap);
 }
@@ -814,6 +820,10 @@ load_unlock(const char *ftptr, int done)
 VALUE
 rb_f_require(VALUE obj, VALUE fname)
 {
+    struct require_information rq = {StringValuePtr(fname)};
+    if(require_granted(&rq))
+      rb_fatal("Can't require");
+
     return rb_require_safe(fname, rb_safe_level());
 }
 
@@ -829,6 +839,11 @@ VALUE
 rb_f_require_relative(VALUE obj, VALUE fname)
 {
     VALUE base = rb_current_realfilepath();
+ 
+    struct require_information rq = {StringValuePtr(fname)};
+    if(require_granted(&rq))
+      rb_fatal("Can't require");
+    
     if (NIL_P(base)) {
 	rb_loaderror("cannot infer basepath");
     }

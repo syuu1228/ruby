@@ -24,9 +24,9 @@ Author : alphaKAI
 #include "probes.h"
 #include "probes_helper.h"
 
-#include "accesscontroller.h"
+#include "method_access.h"
 
-#ifdef ACCESSCONTROLLER_DEBUG
+#ifdef METHOD_DEBUG
 #define DEBUG0(msg) fprintf(stderr, msg)
 #define DEBUG1(msg, arg1) fprintf(stderr, msg, arg1)
 #define DEBUG2(msg, arg1, arg2) fprintf(stderr, msg, arg1, arg2)
@@ -38,6 +38,7 @@ Author : alphaKAI
 
 #define ARRAY_SIZE 100
 static struct method_information *mi_array[ARRAY_SIZE] = {};
+static int    mi_blacklist = 1;
 
 /* Prototype defines */
 static int mi_is_equal(struct method_information *, struct method_information *);
@@ -48,8 +49,8 @@ int
 mi_is_equal(struct method_information *a, struct method_information *b)
 {
   if(a == NULL || b == NULL ||
-      a->classname == NULL || a->methodname == NULL ||
-      b->classname == NULL || b->methodname == NULL)
+       a->classname == NULL || a->methodname == NULL ||
+       b->classname == NULL || b->methodname == NULL)
     return -1;
 
   if (strcmp(a->classname, b->classname) == 0 &&
@@ -147,22 +148,22 @@ show_method_info(struct method_information *mi)
 }
 
 int
-access_granted(struct method_information *mi)
+method_granted(struct method_information *mi)
 {
   struct method_information *matched;
 
   matched = search_mi_element(mi);
   DEBUG0("[COMPARE]");
-#ifdef ACCESSCONTROLLER_DEBUG
+#ifdef METHOD_DEBUG
   show_method_info(mi);
 #endif
 
   if (matched != NULL) {
-    DEBUG0("ACCESS REJECT\n");
-    return -1;
+    DEBUG0(mi_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
+    return mi_blacklist ? -1 : 0;
   } else {
-    DEBUG0("ACCESS GRANTED\n");
-    return 0;
+    DEBUG0(mi_blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
+    return mi_blacklist ?  0 : -1;
   }
 }
 
@@ -172,7 +173,7 @@ dump_mi_array()
 {
   int i;
 
-#ifdef ACCESSCONTROLLER_DEBUG
+#ifdef METHOD_DEBUG
   fprintf(stderr, "[DEBUG][ARRAY DUMP]\n");
   for (i = 0; i < ARRAY_SIZE; i++) {
     if (mi_array[i] != NULL) {

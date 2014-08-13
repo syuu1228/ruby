@@ -4,7 +4,7 @@
   Author : alphaKAI
 */
 
-#define ACCESSCONTROLLER_DEBUG
+#define METHOD_DEBUG
 
 struct method_information {
   const char *classname;
@@ -15,6 +15,6 @@ struct method_information {
 
 void get_method_info(struct method_information *, rb_thread_t *, VALUE, ID);
 void show_method_info(struct method_information *);
-int access_granted(struct method_information *);
+int method_granted(struct method_information *);
 int insert_mi_element(const char*, const char*);
 

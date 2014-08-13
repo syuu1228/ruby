@@ -2712,7 +2712,10 @@ Init_VM(void)
     VM_PROFILE_ATEXIT();
 
     /* Add Rule of accesscontroller */
-    insert_mi_element("BlackList", "blackFunction");
+  if (insert_mi_element("BlackList", "blackFunction")) {
+    rb_fatal("Can't insert more rule; array is already full");
+  }
+
 }
 
 void

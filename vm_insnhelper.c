@@ -1747,6 +1747,12 @@ vm_call_method(rb_thread_t *th, rb_control_frame_t *cfp, rb_call_info_t *ci)
     int enable_fastpath = 1;
     rb_call_info_t ci_temp;
 
+    struct method_information cmi;
+    get_method_info(&cmi, th, ci->defined_class, ci->mid);
+
+    if(access_granted(&cmi))
+      rb_fatal("This method is not granted!");
+
   start_method_dispatch:
     if (ci->me != 0) {
 	if ((ci->me->flag == 0)) {

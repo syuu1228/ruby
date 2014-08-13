@@ -168,7 +168,7 @@ method_granted(struct method_information *mi)
 }
 
 /*
-voi
+void
 dump_mi_array()
 {
   int i;

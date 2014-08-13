@@ -24,7 +24,7 @@ Author : alphaKAI
 #include "probes.h"
 #include "probes_helper.h"
 
-#include "accesscontroller.h"
+#include "method_access.h"
 
 #ifdef ACCESSCONTROLLER_DEBUG
 #define DEBUG0(msg) fprintf(stderr, msg)
@@ -48,8 +48,8 @@ int
 mi_is_equal(struct method_information *a, struct method_information *b)
 {
   if(a == NULL || b == NULL ||
-      a->classname == NULL || a->methodname == NULL ||
-      b->classname == NULL || b->methodname == NULL)
+       a->classname == NULL || a->methodname == NULL ||
+       b->classname == NULL || b->methodname == NULL)
     return -1;
 
   if (strcmp(a->classname, b->classname) == 0 &&
@@ -147,7 +147,7 @@ show_method_info(struct method_information *mi)
 }
 
 int
-access_granted(struct method_information *mi)
+method_granted(struct method_information *mi)
 {
   struct method_information *matched;
 
@@ -167,7 +167,7 @@ access_granted(struct method_information *mi)
 }
 
 /*
-void
+voi
 dump_mi_array()
 {
   int i;

@@ -21,7 +21,7 @@
 #include "probes.h"
 #include "probes_helper.h"
 
-#include "accesscontroller.h"
+#include "method_access.h"
 
 static inline VALUE *
 VM_EP_LEP(VALUE *ep)
@@ -1301,7 +1301,7 @@ vm_frametype_name(const rb_control_frame_t *cfp)
     VALUE *pc;                       // 0
     VALUE *sp;                       // stack pointer
     VALUE *bp;                       // base pointer (used in exception)
-    rb_iseq_t *iseq;                 // accesscontroller.hcmi
+    rb_iseq_t *iseq;                 // cmi
     VALUE magic;                     // C_METHOD_FRAME
     VALUE self;                      // ?
     VALUE *ep;                       // ep == lep
@@ -2711,7 +2711,7 @@ Init_VM(void)
     Init_vm_backtrace();
     VM_PROFILE_ATEXIT();
 
-    /* Add Rule of accesscontroller */
+    /* Add Rule of method_access */
   if (insert_mi_element("BlackList", "blackFunction")) {
     rb_fatal("Can't insert more rule; array is already full");
   }

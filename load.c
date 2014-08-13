@@ -10,6 +10,8 @@
 #include "probes.h"
 #include "node.h"
 
+#include "require_access.h"
+
 VALUE ruby_dln_librefs;
 
 #define IS_RBEXT(e) (strcmp((e), ".rb") == 0)
@@ -814,6 +816,8 @@ load_unlock(const char *ftptr, int done)
 VALUE
 rb_f_require(VALUE obj, VALUE fname)
 {
+    insert_rq_element(StringValuePtr(fname));
+    dump_rq_array();
     return rb_require_safe(fname, rb_safe_level());
 }
 
@@ -829,6 +833,10 @@ VALUE
 rb_f_require_relative(VALUE obj, VALUE fname)
 {
     VALUE base = rb_current_realfilepath();
+
+    insert_rq_element(StringValuePtr(fname));
+    dump_rq_array();
+
     if (NIL_P(base)) {
 	rb_loaderror("cannot infer basepath");
     }

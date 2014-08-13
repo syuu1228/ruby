@@ -38,6 +38,7 @@ Author : alphaKAI
 
 #define ARRAY_SIZE 100
 static struct require_information *rq_array[ARRAY_SIZE] = {};
+static int    rq_blacklist = 1;
 
 /* Prototype defines */
 static int rq_is_equal(struct require_information *, struct require_information *);
@@ -112,11 +113,11 @@ require_granted(struct require_information *rq)
 #endif
 
   if (matched != NULL) {
-    DEBUG0("[REQURIE] ACCESS REJECT\n");
-    return -1;
+    DEBUG0(rq_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
+    return rq_blacklist ? -1 : 0;
   } else {
-    DEBUG0("[REQUIRE] ACCESS GRANTED\n");
-    return 0;
+    DEBUG0(rq_blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
+    return rq_blacklist ?  0 : -1;
   }
 }
 

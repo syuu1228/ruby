@@ -22,7 +22,6 @@
 #include "probes_helper.h"
 
 #include "accesscontroller.h"
-#include "accesscontroller.c"
 
 static inline VALUE *
 VM_EP_LEP(VALUE *ep)
@@ -1302,7 +1301,7 @@ vm_frametype_name(const rb_control_frame_t *cfp)
     VALUE *pc;                       // 0
     VALUE *sp;                       // stack pointer
     VALUE *bp;                       // base pointer (used in exception)
-    rb_iseq_t *iseq;                 // cmi
+    rb_iseq_t *iseq;                 // accesscontroller.hcmi
     VALUE magic;                     // C_METHOD_FRAME
     VALUE self;                      // ?
     VALUE *ep;                       // ep == lep

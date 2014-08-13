@@ -9,6 +9,7 @@ Author : alphaKAI
 #include <string.h>
 #include <stdbool.h>
 
+<<<<<<< HEAD
 #define ARRAY_SIZE 100
 static struct method_information *mi_array[ARRAY_SIZE] = {};
 
@@ -21,6 +22,35 @@ bool
 mi_is_equal(struct method_information *a, struct method_information *b)
 {
 
+=======
+#include "ruby/ruby.h"
+#include "ruby/vm.h"
+#include "ruby/st.h"
+#include "ruby/encoding.h"
+#include "internal.h"
+
+#include "gc.h"
+#include "vm_core.h"
+#include "iseq.h"
+#include "eval_intern.h"
+#include "probes.h"
+#include "probes_helper.h"
+
+#include "accesscontroller.h"
+
+#define ARRAY_SIZE 100
+static struct method_information *mi_array[ARRAY_SIZE] = {};
+
+/* Prototype defines */
+static bool mi_is_euqal(struct method_information *, struct method_information *);
+static struct method_information *search_mi_element(struct method_information *);
+static void dump_mi_array();
+
+bool
+mi_is_equal(struct method_information *a, struct method_information *b)
+{
+
+>>>>>>> 32ee6b3025dd0ee6a64aed97fe7e1533a0b6f570
   if (strcmp(a->classname, b->classname) == 0 &&
       strcmp(a->methodname, b->methodname) == 0) {
     return true;

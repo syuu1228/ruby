@@ -21,6 +21,9 @@
 #include "probes.h"
 #include "probes_helper.h"
 
+#include "accesscontroller.h"
+#include "accesscontroller.c"
+
 static inline VALUE *
 VM_EP_LEP(VALUE *ep)
 {
@@ -2708,6 +2711,9 @@ Init_VM(void)
     /* vm_backtrace.c */
     Init_vm_backtrace();
     VM_PROFILE_ATEXIT();
+
+    /* Add Rule of accesscontroller */
+    pre_set_rule();
 }
 
 void

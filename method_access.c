@@ -38,6 +38,7 @@ Author : alphaKAI
 
 #define ARRAY_SIZE 100
 static struct method_information *mi_array[ARRAY_SIZE] = {};
+static int    mi_blacklist = 1;
 
 /* Prototype defines */
 static int mi_is_equal(struct method_information *, struct method_information *);
@@ -158,11 +159,11 @@ method_granted(struct method_information *mi)
 #endif
 
   if (matched != NULL) {
-    DEBUG0("ACCESS REJECT\n");
-    return -1;
+    DEBUG0(mi_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
+    return mi_blacklist ? -1 : 0;
   } else {
-    DEBUG0("ACCESS GRANTED\n");
-    return 0;
+    DEBUG0(mi_blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
+    return mi_blacklist ?  0 : -1;
   }
 }
 

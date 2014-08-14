@@ -185,7 +185,8 @@ class SecureDSL
       @c_code << "};"
     end
     
-    @c_code << "struct #{short}_ruleset #{short}_rule_array[] = {"
+    @c_code << "struct #{short}_ruleset #{short}_rulesets[] = {"
+    rulesets_len = 0
     rules_count.times do |i|
       list_mode = nil
       eval("list_mode = @#{long}_rules[\"list_modes\"][i]")
@@ -193,8 +194,10 @@ class SecureDSL
       base += "," unless i == rules_count - 1
       
       @c_code << base
+      rulesets_len += 1
     end
     @c_code << "};"
+    @c_code << "int #{short}_rulesets_len = #{rulesets_len};"
   end
 
   def output_c_code

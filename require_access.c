@@ -20,7 +20,7 @@ Author : alphaKAI
 
 /* Prototype defines */
 static int rq_is_equal(struct require_information *, struct require_information *);
-static struct require_information *search_rq_element(struct require_information *);
+static struct require_information *search_rq_element(struct rq_ruleset*, struct require_information *);
 /* static void dump_rq_array(); */
 
 int
@@ -38,15 +38,15 @@ rq_is_equal(struct require_information *a, struct require_information *b)
 }
 
 struct require_information*
-search_rq_element(struct require_information *rq)
+search_rq_element(struct rq_ruleset *ruleset, struct require_information *rq)
 {
   int i;
 
-  for (i = 0; i < rq_array_len; i++) {
-    DEBUG2("[REQURIE QCOMPARE] filename  %s - %s\n", rq_array[i].filename, rq->filename);
+  for (i = 0; i < ruleset->rule_len; i++) {
+    DEBUG2("[REQURIE QCOMPARE] filename  %s - %s\n", ruleset->rules[i].filename, rq->filename);
 
-    if (!rq_is_equal(&rq_array[i], rq)) {
-      return &rq_array[i];
+    if (!rq_is_equal(&ruleset->rules[i], rq)) {
+      return &ruleset->rules[i];
     } 
    
   }
@@ -63,23 +63,27 @@ show_require_info(struct require_information *rq)
 int
 require_granted(int id, struct require_information *rq)
 {
+  struct rq_ruleset *ruleset;
   struct require_information *matched;
 
-  if(id == -1)
+  if (id == -1)
     return 0;
+  if (id >= rq_rulesets_len)
+    return -1;
+  ruleset = &rq_rulesets[id];
 
-  matched = search_rq_element(rq);
+  matched = search_rq_element(ruleset, rq);
   DEBUG0("[REQUIRE COMPARE]\n");
 #ifdef REQUIRE_DEBUG
   show_require_info(rq);
 #endif
   DEBUG1("[REQUIRE] matched = %p\n", matched);
   if (matched != NULL) {
-    DEBUG0(rq_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
-    return rq_blacklist ? -1 : 0;
+    DEBUG0(ruleset->blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
+    return ruleset->blacklist ? -1 : 0;
   } else {
-    DEBUG0(rq_blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
-    return rq_blacklist ?  0 : -1;
+    DEBUG0(ruleset->blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
+    return ruleset->blacklist ?  0 : -1;
   }
 }
 

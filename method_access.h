@@ -12,6 +12,12 @@ struct method_information {
   const char *methodname;
 };
 
+struct mi_ruleset {
+  struct method_information *rules;
+  int rule_len;
+  int blacklist;
+};
+
 /* Prototype defines */
 
 void get_method_info(struct method_information *, rb_thread_t *, VALUE, ID);

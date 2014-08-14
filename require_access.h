@@ -16,7 +16,7 @@ struct require_information {
 
 void get_require_info(struct require_information *, rb_thread_t *, VALUE, ID);
 void show_require_info(struct require_information *);
-int require_granted(struct require_information *);
+int require_granted(int, struct require_information *);
 
 /*
 struct require_information *rq_array;

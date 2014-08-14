@@ -2746,6 +2746,15 @@ rb_thread_inspect(VALUE thread)
     return str;
 }
 
+static VALUE
+rb_thread_set_access_control_id(VALUE thread, VALUE id)
+{
+    rb_thread_t *th;
+    GetThreadPtr(thread, th);
+    th->access_control_id = NUM2INT(id);
+    return INT2NUM(th->access_control_id);
+}
+
 VALUE
 rb_thread_local_aref(VALUE thread, ID id)
 {
@@ -5103,6 +5112,7 @@ Init_Thread(void)
     rb_define_method(rb_cThread, "backtrace_locations", rb_thread_backtrace_locations_m, -1);
 
     rb_define_method(rb_cThread, "inspect", rb_thread_inspect, 0);
+    rb_define_method(rb_cThread, "access_control_id=", rb_thread_set_access_control_id, 1);
 
     closed_stream_error = rb_exc_new2(rb_eIOError, "stream closed");
     OBJ_TAINT(closed_stream_error);

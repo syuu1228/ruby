@@ -106,15 +106,19 @@ show_method_info(struct method_information *mi)
 }
 
 int
-method_granted(struct method_information *mi)
+method_granted(int id, struct method_information *mi)
 {
   struct method_information *matched;
+
+  if(id == -1)
+    return 0;
 
   matched = search_mi_element(mi);
   DEBUG0("[COMPARE]");
 #ifdef METHOD_DEBUG
   show_method_info(mi);
 #endif
+  DEBUG1("[COMPARE] matched = %p\n", matched);
 
   if (matched != NULL) {
     DEBUG0(mi_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");

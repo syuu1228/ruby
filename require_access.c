@@ -61,16 +61,19 @@ show_require_info(struct require_information *rq)
 }
 
 int
-require_granted(struct require_information *rq)
+require_granted(int id, struct require_information *rq)
 {
   struct require_information *matched;
+
+  if(id == -1)
+    return 0;
 
   matched = search_rq_element(rq);
   DEBUG0("[REQUIRE COMPARE]\n");
 #ifdef REQUIRE_DEBUG
   show_require_info(rq);
 #endif
-
+  DEBUG1("[REQUIRE] matched = %p\n", matched);
   if (matched != NULL) {
     DEBUG0(rq_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
     return rq_blacklist ? -1 : 0;

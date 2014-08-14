@@ -2150,6 +2150,7 @@ th_init(rb_thread_t *th, VALUE self)
 #if OPT_CALL_THREADED_CODE
     th->retval = Qundef;
 #endif
+    th->access_control_id = -1;
 }
 
 static VALUE

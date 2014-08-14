@@ -24,6 +24,12 @@
 #include "method_access.h"
 #include "require_access.h"
 
+#include "access_rule.c"
+
+#include "method_access.c"
+#include "require_access.c"
+
+
 static inline VALUE *
 VM_EP_LEP(VALUE *ep)
 {
@@ -2711,16 +2717,6 @@ Init_VM(void)
     /* vm_backtrace.c */
     Init_vm_backtrace();
     VM_PROFILE_ATEXIT();
-
-    /* Add Rule of method_access */
-    if (insert_mi_element("BlackList", "blackFunction")) {
-      rb_fatal("Can't insert more rule; array is already full");
-    }
-
-    /* require access */
-    if (insert_rq_element("twitter")) {
-      rb_fatal("Can't insert more rule; array is already full");
-    }
 }
 
 void

@@ -7,24 +7,6 @@ Author : alphaKAI
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-
-#include "ruby/ruby.h"
-#include "ruby/vm.h"
-#include "ruby/st.h"
-#include "ruby/encoding.h"
-#include "internal.h"
-
-#include "gc.h"
-/* XXX:Need to fix. */
-#define NSIG 32
-#include "vm_core.h"
-#include "iseq.h"
-#include "eval_intern.h"
-#include "probes.h"
-#include "probes_helper.h"
-
-#include "require_access.h"
 
 #ifdef REQUIRE_DEBUG
 #define DEBUG0(msg) fprintf(stderr, msg)
@@ -35,10 +17,6 @@ Author : alphaKAI
 #define DEBUG1(msg, arg1)
 #define DEBUG2(msg, arg1, arg2)
 #endif
-
-#define ARRAY_SIZE 100
-static struct require_information *rq_array[ARRAY_SIZE] = {};
-static int    rq_blacklist = 1;
 
 /* Prototype defines */
 static int rq_is_equal(struct require_information *, struct require_information *);
@@ -64,35 +42,16 @@ search_rq_element(struct require_information *rq)
 {
   int i;
 
-  for (i = 0; i < ARRAY_SIZE; i++) {
-    if(rq_array[i] != NULL){
-      DEBUG2("[REQURIE QCOMPARE] filename  %s - %s\n", rq_array[i]->filename, rq->filename);
-    }
+  for (i = 0; i < rq_array_len; i++) {
+    DEBUG2("[REQURIE QCOMPARE] filename  %s - %s\n", rq_array[i].filename, rq->filename);
 
-    if (!rq_is_equal(rq_array[i], rq)) {
-      return rq_array[i];
+    if (!rq_is_equal(&rq_array[i], rq)) {
+      return &rq_array[i];
     } 
    
   }
 
   return NULL;
-}
-
-int
-insert_rq_element(const char *filename)
-{
-  int i;
-
-  for (i = 0; i < ARRAY_SIZE; i++) {
-    if (rq_array[i] == NULL) {
-      rq_array[i] = (struct require_information*)malloc(sizeof(struct require_information*));
-      rq_array[i]->filename  = filename;
-
-      return 0;
-    }
-  }
-  DEBUG0("[Error] : Can not insert rule into array; array size is 100(MAX ARRAY SIZE)\n");
-  return -1;
 }
 
 void

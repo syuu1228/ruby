@@ -70,7 +70,7 @@ class SecureDSL
       short = "rq"
     end
 
-    @c_code << "struct #{long}_info #{short}_array[] = {"
+    @c_code << "struct #{long}_information #{short}_array[] = {"
 
     list_mode    = nil    
     mi_ary_len  = 0
@@ -91,7 +91,7 @@ class SecureDSL
         method_name = line.split(".")[1]
 
         if mode == :method
-          base = "{\"#{class_name}, \"#{method_name}\"}" 
+          base = "{\"#{class_name}\", \"#{method_name}\"}" 
         elsif mode == :require
           base = "{\"#{class_name}\"}"
         end
@@ -110,10 +110,10 @@ class SecureDSL
     @c_code << "};"
 
     if list_mode == :blacklist
-      @c_code << "int #{short}_blacklist = 0;"
+      @c_code << "int #{short}_blacklist = 1;"
       @c_code << "int #{short}_array_len = " + (short == "mi" ? mi_ary_len.to_s : rq_ary_len.to_s) + ";"
     elsif list_mode == :whitelist
-      @c_code << "int #{short}_blacklist = 1;"
+      @c_code << "int #{short}_blacklist = 0;"
       @c_code << "int #{short}_array_len = " + (short == "mi" ? mi_ary_len.to_s : rq_ary_len.to_s) + ";"
     end
   end

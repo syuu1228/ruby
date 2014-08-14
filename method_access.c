@@ -7,24 +7,6 @@ Author : alphaKAI
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-
-#include "ruby/ruby.h"
-#include "ruby/vm.h"
-#include "ruby/st.h"
-#include "ruby/encoding.h"
-#include "internal.h"
-
-#include "gc.h"
-/* XXX:Need to fix. */
-#define NSIG 32
-#include "vm_core.h"
-#include "iseq.h"
-#include "eval_intern.h"
-#include "probes.h"
-#include "probes_helper.h"
-
-#include "method_access.h"
 
 #ifdef METHOD_DEBUG
 #define DEBUG0(msg) fprintf(stderr, msg)
@@ -35,10 +17,6 @@ Author : alphaKAI
 #define DEBUG1(msg, arg1)
 #define DEBUG2(msg, arg1, arg2)
 #endif
-
-#define ARRAY_SIZE 100
-static struct method_information *mi_array[ARRAY_SIZE] = {};
-static int    mi_blacklist = 1;
 
 /* Prototype defines */
 static int mi_is_equal(struct method_information *, struct method_information *);
@@ -66,37 +44,17 @@ search_mi_element(struct method_information *mi)
 {
   int i;
 
-  for (i = 0; i < ARRAY_SIZE; i++) {
-    if(mi_array[i] != NULL){
-      DEBUG2("[COMPARE] class  %s - %s\n", mi_array[i]->classname, mi->classname);
-      DEBUG2("[COMPARE] method %s - %s\n", mi_array[i]->methodname, mi->methodname);
-    }
+  for (i = 0; i < mi_array_len; i++) {
+    DEBUG2("[COMPARE] class  %s - %s\n", mi_array[i].classname, mi->classname);
+    DEBUG2("[COMPARE] method %s - %s\n", mi_array[i].methodname, mi->methodname);
 
-    if (!mi_is_equal(mi_array[i], mi)) {
-      return mi_array[i];
+    if (!mi_is_equal(&mi_array[i], mi)) {
+      return &mi_array[i];
     } 
    
   }
 
   return NULL;
-}
-
-int
-insert_mi_element(const char *classname, const char *methodname)
-{
-  int i;
-
-  for (i = 0; i < ARRAY_SIZE; i++) {
-    if (mi_array[i] == NULL) {
-      mi_array[i] = (struct method_information*)malloc(sizeof(struct method_information*));
-      mi_array[i]->classname  = classname;
-      mi_array[i]->methodname = methodname;
-
-      return 0;
-    }
-  }
-  DEBUG0("[Error] : Can not insert rule into array; array size is 100(MI_MAX)\n");
-  return -1;
 }
 
 void

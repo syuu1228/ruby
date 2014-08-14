@@ -95,8 +95,6 @@ COMMONOBJS    = array.$(OBJEXT) \
 		vm_trace.$(OBJEXT) \
 		thread.$(OBJEXT) \
 		cont.$(OBJEXT) \
-		method_access.$(OBJEXT) \
-		require_access.$(OBJEXT) \
 		$(BUILTIN_ENCOBJS) \
 		$(BUILTIN_TRANSOBJS) \
 		$(MISSING)

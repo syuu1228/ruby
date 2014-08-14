@@ -3,12 +3,14 @@ class SecureDSL
   def initialize
     @require_rules = {
       "rules_count" => 0,
-      "rules" => []
+      "rules"       => [],
+      "list_modes"  => []
     }
 
     @method_rules  = {
       "rules_count" => 0,
-      "rules" => []
+      "rules"       => [],
+      "list_modes"  => []
     }
 
     @c_code = []
@@ -20,6 +22,12 @@ class SecureDSL
     file_data  = File.read(fname).split("\n")
 
     file_data.each do |element|
+      if element =~ /^#.*$/
+        file_data[line] = ""
+        line += 1
+        next
+      end
+
       if element =~ /add_(method|require)/
         file_data[line] = element
         begin_flag      = true
@@ -47,13 +55,14 @@ class SecureDSL
   def add_method_rule(&block)
     rule = block.call
     @method_rules["rules_count"] += 1
-    @method_rules["rules"] << rule
+    #@method_rules["rules"] << rule
+    @method_rules["rules"][@method_rules["rules_count"] - 1] = rule
   end
 
   def add_require_rule(&block)
     rule = block.call
     @require_rules["rules_count"] += 1
-    @require_rules["rules"] << rule
+    @require_rules["rules"][@require_rules["rules_count"] - 1] = rule
   end
 
   def gen_c_code_run
@@ -61,7 +70,9 @@ class SecureDSL
     gen_c_code :require
   end
 
-  def gen_c_code(mode)
+=begin
+{{{
+  def gen_c_code_(mode)
     if mode == :method
       long  = "method"
       short = "mi"
@@ -116,6 +127,77 @@ class SecureDSL
       @c_code << "int #{short}_blacklist = 0;"
       @c_code << "int #{short}_array_len = " + (short == "mi" ? mi_ary_len.to_s : rq_ary_len.to_s) + ";"
     end
+  end
+  }}}
+=end
+
+  def gen_c_code(mode)
+    if mode == :method
+      long  = "method"
+      short = "mi"
+    elsif mode == :require
+      long  = "require"
+      short = "rq"
+    end
+
+
+    list_mode    = nil    
+    mi_ary_lens = []
+    rq_ary_lens = []
+    rules_count = 0
+    eval("rules_count = @#{long}_rules[\"rules_count\"]")
+
+    rules_count.times do |i|
+      @c_code << "struct #{long}_information #{short}_array#{i}[] = {"
+      tmp_rules = []
+
+      element_array = nil
+      eval("element_array = @#{long}_rules[\"rules\"][i]")
+      eval("@#{long}_rules[\"list_modes\"][i] = element_array[0]")
+      loop_conter = 0 
+
+      element_array[1].each do |line|
+        class_name  = line.split(".")[0]
+        method_name = line.split(".")[1]
+
+        if mode == :method
+          base = "{\"#{class_name}\", \"#{method_name}\"}" 
+        elsif mode == :require
+          base = "{\"#{class_name}\"}"
+        end
+
+        base += "," unless loop_conter == element_array[1].size - 1
+
+        loop_conter += 1
+        tmp_rules << base
+      end
+
+      tmp_rules.each do |line|
+        @c_code << line
+        eval("if #{short}_ary_lens[#{i}] == nil
+                #{short}_ary_lens[#{i}] = 1
+              else
+                #{short}_ary_lens[#{i}] += 1
+              end
+              ")
+      end
+
+      @c_code << "};"
+    end
+    
+    @c_code << "struct #{short}_ruleset #{short}_rulesets[] = {"
+    rulesets_len = 0
+    rules_count.times do |i|
+      list_mode = nil
+      eval("list_mode = @#{long}_rules[\"list_modes\"][i]")
+      base = "{#{short}_array#{i}, #{(short == "mi" ? mi_ary_lens[i].to_s : rq_ary_lens[i].to_s)}, #{list_mode == :blacklist ? 1 : 0}}"
+      base += "," unless i == rules_count - 1
+      
+      @c_code << base
+      rulesets_len += 1
+    end
+    @c_code << "};"
+    @c_code << "int #{short}_rulesets_len = #{rulesets_len};"
   end
 
   def output_c_code

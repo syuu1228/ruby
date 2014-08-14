@@ -20,7 +20,7 @@ Author : alphaKAI
 
 /* Prototype defines */
 static int mi_is_equal(struct method_information *, struct method_information *);
-static struct method_information *search_mi_element(struct method_information *);
+static struct method_information *search_mi_element(struct mi_ruleset*, struct method_information *);
 /* static void dump_mi_array(); */
 
 int
@@ -40,16 +40,16 @@ mi_is_equal(struct method_information *a, struct method_information *b)
 }
 
 struct method_information*
-search_mi_element(struct method_information *mi)
+search_mi_element(struct mi_ruleset *ruleset, struct method_information *mi)
 {
   int i;
 
-  for (i = 0; i < mi_array_len; i++) {
-    DEBUG2("[COMPARE] class  %s - %s\n", mi_array[i].classname, mi->classname);
-    DEBUG2("[COMPARE] method %s - %s\n", mi_array[i].methodname, mi->methodname);
+  for (i = 0; i < ruleset->rule_len; i++) {
+    DEBUG2("[COMPARE] class  %s - %s\n", ruleset->rules[i].classname, mi->classname);
+    DEBUG2("[COMPARE] method %s - %s\n", ruleset->rules[i].methodname, mi->methodname);
 
-    if (!mi_is_equal(&mi_array[i], mi)) {
-      return &mi_array[i];
+    if (!mi_is_equal(&ruleset->rules[i], mi)) {
+      return &ruleset->rules[i];
     } 
    
   }
@@ -108,12 +108,16 @@ show_method_info(struct method_information *mi)
 int
 method_granted(int id, struct method_information *mi)
 {
+  struct mi_ruleset *ruleset;
   struct method_information *matched;
 
-  if(id == -1)
+  if (id == -1)
     return 0;
+  if (id >= mi_rulesets_len)
+    return -1;
+  ruleset = &mi_rulesets[id];
 
-  matched = search_mi_element(mi);
+  matched = search_mi_element(ruleset, mi);
   DEBUG0("[COMPARE]");
 #ifdef METHOD_DEBUG
   show_method_info(mi);
@@ -121,11 +125,11 @@ method_granted(int id, struct method_information *mi)
   DEBUG1("[COMPARE] matched = %p\n", matched);
 
   if (matched != NULL) {
-    DEBUG0(mi_blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
-    return mi_blacklist ? -1 : 0;
+    DEBUG0(ruleset->blacklist ? "ACCESS REJECT\n" : "ACCESS GRANTED\n");
+    return ruleset->blacklist ? -1 : 0;
   } else {
-    DEBUG0(mi_blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
-    return mi_blacklist ?  0 : -1;
+    DEBUG0(ruleset->blacklist ? "ACCESS GRANTED\n" : "ACCESS REJECT\n");
+    return ruleset->blacklist ?  0 : -1;
   }
 }
 

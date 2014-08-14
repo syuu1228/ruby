@@ -12,6 +12,12 @@ struct require_information {
   const char *filename;
 };
 
+struct rq_ruleset {
+  struct require_information *rules;
+  int rule_len;
+  int blacklist;
+};
+
 /* Prototype defines */
 
 void get_require_info(struct require_information *, rb_thread_t *, VALUE, ID);

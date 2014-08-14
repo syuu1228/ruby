@@ -8,18 +8,20 @@ add_method_rule do
   list_mode = :whitelist
   
   list = ["BlackClass2.blackFunction2",
-   "BlackClass3.blackFunction3"]
+          "Class.new",
+          "Kernel.puts",
+          "Kernel.require"]
 end
 
 add_require_rule do
   list_mode = :blacklist
 
-  list = ["twitter"]
+  list = ["open-uri"]
 end
 
 add_require_rule do
   list_mode = :whitelist
 
-  list = ["oauth",
-          "json"]
+  list = ["cgi"]
+          
 end

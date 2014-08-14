@@ -3,6 +3,8 @@
   
   Author : alphaKAI
 */
+#ifndef REQUIRE_ACCESS_DEFINED
+#define REQUIRE_ACCESS_DEFINED
 
 #define REQUIRE_DEBUG
 
@@ -14,6 +16,11 @@ struct require_information {
 
 void get_require_info(struct require_information *, rb_thread_t *, VALUE, ID);
 void show_require_info(struct require_information *);
-int require_granted(struct require_information *);
-int insert_rq_element(const char*);
+int require_granted(int, struct require_information *);
 
+/*
+struct require_information *rq_array;
+int rq_blacklist;
+int rq_ary_len;
+*/
+#endif

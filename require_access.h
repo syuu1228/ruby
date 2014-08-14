@@ -6,8 +6,6 @@
 #ifndef REQUIRE_ACCESS_DEFINED
 #define REQUIRE_ACCESS_DEFINED
 
-#define REQUIRE_DEBUG
-
 struct require_information {
   const char *filename;
 };

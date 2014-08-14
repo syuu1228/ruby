@@ -4,7 +4,6 @@
   Author : alphaKAI
 */
 
-#define METHOD_DEBUG
 #ifndef METHOD_ACCESS_DEFINED
 #define METHOD_ACCESS_DEFINED
 struct method_information {
